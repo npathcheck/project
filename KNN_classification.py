@@ -1,6 +1,7 @@
 import collections
 import input_data
 import numpy as np
+import heapq
 
 
 class KNN():
@@ -45,7 +46,7 @@ class KNN():
             for j in range(len(train_datas)):
                 distance = self.calculate_jaccard(validation_datas[i], train_datas[j])
                 ndistance.append([distance, train_labels[j]])
-            knearest = [distance[1] for distance in sorted(ndistance)][:k]
+            knearest = [distance[1] for distance in heapq.nsmallest(k, ndistance)]
             predict_labels.append(collections.Counter(knearest).most_common(1)[0][0])
         return predict_labels
 
@@ -66,7 +67,7 @@ class KNN():
     # 遍历寻找最佳的K
     def traversal_k(self):
         accuracies = []
-        for k in range(1, 102, 10):
+        for k in range(1, 52, 10):
             accuracy = self.cross_validation(k)
             print("The accuracy of K=" + str(k) + " is " + str(accuracy))
             accuracies.append(accuracy)
