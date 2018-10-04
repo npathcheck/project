@@ -16,27 +16,27 @@ class NB():
 
     # 读取训练集
     def read_train(self, train_data_path, train_label_path):
-        self.train_datas, self.train_lables = io_data.read_train(train_data_path, train_label_path)
+        self.train_datas, self.train_labels = io_data.read_train(train_data_path, train_label_path)
         self.k_train_datas, self.k_train_labels, self.k_validation_datas, self.k_validation_labels = \
-            io_data.k_fold_cross_validation(self.train_datas, self.train_lables)
+            io_data.k_fold_cross_validation(self.train_datas, self.train_labels)
 
     # 读取测试集
     def read_test(self, test_data_path):
         self.test_datas = io_data.read_test(test_data_path)
 
     # 创建词向量矩阵
-    def create_word2vec(self, train_datas, train_lables):
+    def create_word2vec(self, train_datas, train_labels):
         self.wordList = set()
         for train_data in train_datas:
             self.wordList |= set(train_data)
         self.wordList = list(self.wordList)
-        words_matrix = np.zeros([len(set(train_lables)), len(self.wordList)])
+        words_matrix = np.zeros([len(set(train_labels)), len(self.wordList)])
         for i in range(len(train_datas)):
             for j in range(len(train_datas[i])):
-                words_matrix[train_lables[i], self.wordList.index(train_datas[i][j])] += 1
+                words_matrix[train_labels[i], self.wordList.index(train_datas[i][j])] += 1
         words_amount = np.sum(words_matrix, axis=1)
         # 最后一列用于存储训练集中不存在的单词的词向量
-        self.word2vec = np.zeros([len(set(train_lables)), len(self.wordList)+1])
+        self.word2vec = np.zeros([len(set(train_labels)), len(self.wordList)+1])
         for i in range(self.word2vec.shape[0]):
             for j in range(self.word2vec.shape[1]-1):
                 self.word2vec[i,j] = math.log((words_matrix[i,j]+1)/(words_amount[i]+len(self.wordList)))
@@ -46,16 +46,16 @@ class NB():
     def navie_bayes(self, train_labels, validation_datas):
         predict_labels = []
         for validation_data in validation_datas:
-            lables_possibility = [0] * self.word2vec.shape[0]
+            labels_possibility = [0] * self.word2vec.shape[0]
             for label in range(self.word2vec.shape[0]):
-                lables_possibility[label] += math.log(train_labels.count(label) / len(train_labels))
+                labels_possibility[label] += math.log(train_labels.count(label) / len(train_labels))
                 for word in validation_data:
                     if word in self.wordList:
-                        lables_possibility[label] += self.word2vec[label, self.wordList.index(word)]
+                        labels_possibility[label] += self.word2vec[label, self.wordList.index(word)]
                     else:
-                        lables_possibility[label] += self.word2vec[label, -1]
-            predict_labels.append(lables_possibility.index(max(lables_possibility)))
-            print(lables_possibility)
+                        labels_possibility[label] += self.word2vec[label, -1]
+            predict_labels.append(labels_possibility.index(max(labels_possibility)))
+            print(labels_possibility)
         return predict_labels
 
     # 交叉验证
@@ -75,8 +75,8 @@ class NB():
     # 写入测试集
     def write_test(self, test_label_path):
         self.create_word2vec(self.train_datas, self.train_labels)
-        predict_lables = self.navie_bayes(self.train_labels, self.test_datas)
-        io_data.write_test(test_label_path, predict_lables)
+        predict_labels = self.navie_bayes(self.train_labels, self.test_datas)
+        io_data.write_test(test_label_path, predict_labels)
 
 if __name__ == '__main__':
     nb = NB()

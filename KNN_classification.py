@@ -15,15 +15,17 @@ class KNN():
 
     # 读取训练集
     def read_train(self, train_data_path, train_label_path):
-        self.train_datas, self.train_lables = io_data.read_train(train_data_path, train_label_path)
+        self.train_datas, self.train_labels = io_data.read_train(train_data_path, train_label_path)
         for i in range(len(self.train_datas)):  # 去重
             self.train_datas[i] = set(self.train_datas[i])
         self.k_train_datas, self.k_train_labels, self.k_validation_datas, self.k_validation_labels = \
-        io_data.k_fold_cross_validation(self.train_datas, self.train_lables)
+        io_data.k_fold_cross_validation(self.train_datas, self.train_labels)
 
     # 读取测试集
     def read_test(self, test_data_path):
         self.test_datas = io_data.read_test(test_data_path)
+        for i in range(len(self.test_datas)):  # 去重
+            self.test_datas[i] = set(self.test_datas[i])
 
     # 闵科夫斯基距离
     def calculate_lp(self, text1, text2):
@@ -73,7 +75,7 @@ class KNN():
     # 遍历寻找最佳的K
     def traversal_k(self):
         accuracies = []
-        for k in range(1, 52, 10):
+        for k in range(1, 200, 10):
             accuracy = self.cross_validation(k)
             print("The accuracy of K=" + str(k) + " is " + str(accuracy))
             accuracies.append(accuracy)
@@ -88,4 +90,5 @@ class KNN():
 if __name__ == '__main__':
     knn = KNN()
     knn.read_train("data/2/trainData.txt", "data/2/trainLabel.txt")
-    knn.traversal_k()
+    knn.read_test("data/2/testData.txt")
+    knn.write_test("data/2/16337250_1.txt")
