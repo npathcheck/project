@@ -1,10 +1,13 @@
 import collections
 import numpy as np
 import heapq
-import input_data
+import io_data
 
 class KNN():
 
+    train_datas = []
+    train_labels = []
+    test_datas = []
     k_train_datas = []
     k_train_labels = []
     k_validation_datas = []
@@ -12,11 +15,15 @@ class KNN():
 
     # 读取训练集
     def read_train(self, train_data_path, train_label_path):
-        train_datas, train_lables = input_data.read_train(train_data_path, train_label_path)
-        for i in range(len(train_datas)):  # 去重
-            train_datas[i] = set(train_datas[i])
+        self.train_datas, self.train_lables = io_data.read_train(train_data_path, train_label_path)
+        for i in range(len(self.train_datas)):  # 去重
+            self.train_datas[i] = set(self.train_datas[i])
         self.k_train_datas, self.k_train_labels, self.k_validation_datas, self.k_validation_labels = \
-        input_data.k_fold_cross_validation(train_datas, train_lables)
+        io_data.k_fold_cross_validation(self.train_datas, self.train_lables)
+
+    # 读取测试集
+    def read_test(self, test_data_path):
+        self.test_datas = io_data.read_test(test_data_path)
 
     # 闵科夫斯基距离
     def calculate_lp(self, text1, text2):
@@ -72,6 +79,11 @@ class KNN():
             accuracies.append(accuracy)
         print("The best average accuracy is " + str(max(accuracies)))
         print("The best parameter K is " + str(accuracies.index(max(accuracies))))
+
+    # 写入测试集
+    def write_test(self, test_label_path):
+        predict_labels = self.k_nearest_neighbors(self.train_datas, self.train_labels, self.test_datas, 10)
+        io_data.write_test(test_label_path, predict_labels)
 
 if __name__ == '__main__':
     knn = KNN()

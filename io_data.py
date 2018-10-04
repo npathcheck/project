@@ -21,6 +21,21 @@ def read_train(train_data_path, train_label_path):
     file_object.close()
     return train_datas, train_lables
 
+def read_test(test_data_path):
+    test_datas = []
+    file_object = open(test_data_path, 'r', encoding='UTF-8')
+    for line in file_object.readlines():
+        line = re.sub(r'<.*?>', '',line.strip())
+        test_datas.append(list(filter(None, (word.lower() for word in re.split(r'[,.:() ]', line)))))
+    file_object.close()
+    return test_datas
+
+def write_test(test_label_path, predict_labels):
+    file_object = open(test_label_path, 'w', encoding='UTF-8')
+    for predict_label in predict_labels:
+        file_object.write(str(predict_label) + '\n')
+    file_object.close()
+
 def k_fold_cross_validation(train_datas, train_lables, k=10):
     '''
     :param train_datas：训练集数据, train_lables：训练集标签

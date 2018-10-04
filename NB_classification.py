@@ -1,9 +1,12 @@
 import math
 import numpy as np
-import input_data
+import io_data
 
 class NB():
 
+    train_datas = []
+    train_labels = []
+    test_datas = []
     k_train_datas = []
     k_train_labels = []
     k_validation_datas = []
@@ -13,9 +16,13 @@ class NB():
 
     # 读取训练集
     def read_train(self, train_data_path, train_label_path):
-        train_datas, train_lables = input_data.read_train(train_data_path, train_label_path)
+        self.train_datas, self.train_lables = io_data.read_train(train_data_path, train_label_path)
         self.k_train_datas, self.k_train_labels, self.k_validation_datas, self.k_validation_labels = \
-            input_data.k_fold_cross_validation(train_datas, train_lables)
+            io_data.k_fold_cross_validation(self.train_datas, self.train_lables)
+
+    # 读取测试集
+    def read_test(self, test_data_path):
+        self.test_datas = io_data.read_test(test_data_path)
 
     # 创建词向量矩阵
     def create_word2vec(self, train_datas, train_lables):
@@ -33,7 +40,7 @@ class NB():
         for i in range(self.word2vec.shape[0]):
             for j in range(self.word2vec.shape[1]-1):
                 self.word2vec[i,j] = math.log((words_matrix[i,j]+1)/(words_amount[i]+len(self.wordList)))
-            self.word2vec[i, -1] = math.log(1/(words_amount[i]+len(self.wordList))*len(self.wordList))
+            self.word2vec[i, -1] = math.log(1/(words_amount[i]+len(self.wordList)+1))
 
     # 朴素贝叶斯
     def navie_bayes(self, train_labels, validation_datas):
@@ -48,6 +55,7 @@ class NB():
                     else:
                         lables_possibility[label] += self.word2vec[label, -1]
             predict_labels.append(lables_possibility.index(max(lables_possibility)))
+            print(lables_possibility)
         return predict_labels
 
     # 交叉验证
@@ -63,8 +71,17 @@ class NB():
         print("The average accuracy of cross validation is " + str(average_accuracy))
         return average_accuracy
 
+
+    # 写入测试集
+    def write_test(self, test_label_path):
+        self.create_word2vec(self.train_datas, self.train_labels)
+        predict_lables = self.navie_bayes(self.train_labels, self.test_datas)
+        io_data.write_test(test_label_path, predict_lables)
+
 if __name__ == '__main__':
     nb = NB()
     nb.read_train("data/2/trainData.txt", "data/2/trainLabel.txt")
-    nb.cross_validation()
+    nb.write_test("data/2/16337250_1.txt")
+    # nb.cross_validation()
+
 
