@@ -59,16 +59,14 @@ class KNN():
         for i in range(10):
             predict_labels = self.k_nearest_neighbors(self.k_train_datas[i], self.k_train_labels[i], self.k_validation_datas[i], k)
             predict_accuracy = (np.array(predict_labels)==np.array(self.k_validation_labels[i])).tolist().count(True) / len(predict_labels)
-            #print("The accuracy of " + str(i + 1) + "th K-fold cross validation is " + str(predict_accuracy))
             average_accuracy += predict_accuracy
         average_accuracy /= 10
-        #print("The average accuracy is " + str(average_accuracy))
         return average_accuracy
 
     # 遍历寻找最佳的K
     def traversal_k(self):
         accuracies = []
-        for k in range(1, 10):
+        for k in range(1, 102, 10):
             accuracy = self.cross_validation(k)
             print("The accuracy of K=" + str(k) + " is " + str(accuracy))
             accuracies.append(accuracy)

@@ -11,12 +11,12 @@ def read_train(train_data_path, train_label_path):
     train_datas = []
     train_lables = []
     file_object = open(train_data_path, 'r', encoding='UTF-8')
-    for line in file_object.readlines():
+    for line in file_object.readlines()[:100]:
         line = re.sub(r'<.*?>', '',line.strip())
         train_datas.append(list(filter(None, (word.lower() for word in re.split(r'[,.:() ]', line)))))
     file_object.close()
     file_object = open(train_label_path, 'r', encoding='UTF-8')
-    for line in file_object.readlines():
+    for line in file_object.readlines()[:100]:
         train_lables.append(int(line))
     file_object.close()
     return train_datas, train_lables
