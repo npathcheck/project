@@ -1,8 +1,7 @@
 import collections
-import input_data
 import numpy as np
 import heapq
-
+import input_data
 
 class KNN():
 
