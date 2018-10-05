@@ -88,4 +88,4 @@ def k_fold_cross_validation(train_datas, train_labels, k=10):
 
 
 if __name__ == "__main__":
-    clear("data/2")
+    clear("data/5")
