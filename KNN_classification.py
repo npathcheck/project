@@ -1,31 +1,25 @@
 import collections
 import numpy as np
 import heapq
-import io_data
+import IO_classification
 
 class KNN():
 
     train_datas = []
     train_labels = []
     test_datas = []
-    k_train_datas = []
-    k_train_labels = []
-    k_validation_datas = []
-    k_validation_labels = []
+    predict_labels = []
 
     # 读取训练集
-    def read_train(self, train_data_path, train_label_path):
-        self.train_datas, self.train_labels = io_data.read_train(train_data_path, train_label_path)
+    def read(self, file_path):
+        self.train_datas, self.train_labels, self.test_datas = IO_classification.read(file_path)
         for i in range(len(self.train_datas)):  # 去重
             self.train_datas[i] = set(self.train_datas[i])
-        self.k_train_datas, self.k_train_labels, self.k_validation_datas, self.k_validation_labels = \
-        io_data.k_fold_cross_validation(self.train_datas, self.train_labels)
-
-    # 读取测试集
-    def read_test(self, test_data_path):
-        self.test_datas = io_data.read_test(test_data_path)
-        for i in range(len(self.test_datas)):  # 去重
+        for i in range(len(self.test_datas)):
             self.test_datas[i] = set(self.test_datas[i])
+
+    def write(self, file_path):
+        IO_classification.write(file_path, self.predict_labels)
 
     # 闵科夫斯基距离
     def calculate_lp(self, text1, text2):
@@ -50,9 +44,10 @@ class KNN():
         '''
         predict_labels = []
         for i in range(len(validation_datas)):
+            print(i)
             ndistance = []
             for j in range(len(train_datas)):
-                distance = self.calculate_jaccard(validation_datas[i], train_datas[j])
+                distance = self.calculate_cos(validation_datas[i], train_datas[j])
                 ndistance.append([distance, train_labels[j]])
             knearest = [distance[1] for distance in heapq.nsmallest(k, ndistance)]
             predict_labels.append(collections.Counter(knearest).most_common(1)[0][0])
@@ -64,10 +59,11 @@ class KNN():
         :param k: 最近邻的邻居个数K
         :return: 十折交叉验证的平均正确率
         '''
+        k_train_datas, k_train_labels, k_validation_datas, k_validation_labels = IO_classification.k_fold_cross_validation(self.train_datas, self.train_labels)
         average_accuracy = 0.0
         for i in range(10):
-            predict_labels = self.k_nearest_neighbors(self.k_train_datas[i], self.k_train_labels[i], self.k_validation_datas[i], k)
-            predict_accuracy = (np.array(predict_labels)==np.array(self.k_validation_labels[i])).tolist().count(True) / len(predict_labels)
+            predict_labels = self.k_nearest_neighbors(k_train_datas[i], k_train_labels[i], k_validation_datas[i], k)
+            predict_accuracy = (np.array(predict_labels)==np.array(k_validation_labels[i])).tolist().count(True) / len(predict_labels)
             average_accuracy += predict_accuracy
         average_accuracy /= 10
         return average_accuracy
@@ -82,13 +78,9 @@ class KNN():
         print("The best average accuracy is " + str(max(accuracies)))
         print("The best parameter K is " + str(accuracies.index(max(accuracies))))
 
-    # 写入测试集
-    def write_test(self, test_label_path):
-        predict_labels = self.k_nearest_neighbors(self.train_datas, self.train_labels, self.test_datas, 10)
-        io_data.write_test(test_label_path, predict_labels)
 
 if __name__ == '__main__':
     knn = KNN()
-    knn.read_train("data/2/trainData.txt", "data/2/trainLabel.txt")
-    knn.read_test("data/2/testData.txt")
-    knn.write_test("data/2/16337250_1.txt")
+    knn.read("data/2")
+    knn.predict_labels = knn.k_nearest_neighbors(knn.train_datas, knn.train_labels, knn.test_datas, 155)
+    knn.write("data/2")
