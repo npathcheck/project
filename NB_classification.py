@@ -43,10 +43,10 @@ class NB():
     # 朴素贝叶斯
     def navie_bayes(self, train_labels, validation_datas):
         predict_labels = []
-        i = 0
+        step = 0
         for validation_data in validation_datas:
-            print(i)
-            i += 1
+            print("step: " + str(step))
+            step += 1
             labels_possibility = [0] * self.wordMatrix.shape[0]
             for label in range(self.wordMatrix.shape[0]):
                 labels_possibility[label] += math.log(train_labels.count(label) / len(train_labels))
@@ -75,10 +75,10 @@ class NB():
 
 if __name__ == '__main__':
     nb = NB()
-    nb.read("data/2/")
+    nb.read("data/5/")
     nb.create_wordMatrix(nb.train_datas, nb.train_labels)
     nb.predict_labels = nb.navie_bayes(nb.train_labels, nb.test_datas)
-    nb.write("data/2/")
+    nb.write("data/5/")
 
 
 

@@ -1,4 +1,5 @@
 import re
+import enchant
 from nltk.stem import SnowballStemmer
 
 def clear(file_path):
@@ -6,6 +7,7 @@ def clear(file_path):
     数据清洗
     '''
     stemmer = SnowballStemmer("english")
+    ecd = enchant.Dict("en_US")
     train_datas = []
     test_datas = []
     stop_words = []
@@ -15,28 +17,34 @@ def clear(file_path):
         stop_words.append(line.strip())
     read_object.close()
 
-    i = 0
+    step = 0
     read_object = open(file_path+"/trainData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '',line.strip())
-        line_words = list(filter(None, (word.lower() for word in re.split(r'[?/*&,;.:!-()<>" ]', line))))
-        train_datas.append([stemmer.stem(word) for word in line_words if word not in stop_words])
-        print("train: " + str(i))
-        i += 1
+        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>" ]', line))))
+        for i in range(len(line_words)):
+            if not ecd.check(line_words[i]):
+                line_words[i] = (ecd.suggest(line_words[i])+[line_words[i]])[0].lower()
+        train_datas.append([word for word in line_words if word not in stop_words])
+        print("train: " + str(step))
+        step += 1
     read_object.close()
     write_object = open(file_path+"/clearTrainData.txt", 'w', encoding='UTF-8')
     for train_data in train_datas:
         write_object.write(' '.join('%s' %s for s in train_data) + '\n')
     write_object.close()
 
-    i = 0
+    step = 0
     read_object = open(file_path + "/testData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '', line.strip())
-        line_words = list(filter(None, (word.lower() for word in re.split(r'[?/*&,;.:!-()<>" ]', line))))
-        test_datas.append([stemmer.stem(word) for word in line_words if word not in stop_words])
-        print("test: " + str(i))
-        i += 1
+        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>" ]', line))))
+        for i in range(len(line_words)):
+            if not ecd.check(line_words[i]):
+                line_words[i] = (ecd.suggest(line_words[i])+[line_words[i]])[0].lower()
+        test_datas.append([word for word in line_words if word not in stop_words])
+        print("test: " + str(step))
+        step += 1
     read_object.close()
     write_object = open(file_path + "/clearTestData.txt", 'w', encoding='UTF-8')
     for test_data in test_datas:
@@ -88,4 +96,4 @@ def k_fold_cross_validation(train_datas, train_labels, k=10):
 
 
 if __name__ == "__main__":
-    clear("data/5")
+    clear("data/2")

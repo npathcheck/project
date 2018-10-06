@@ -44,7 +44,7 @@ class KNN():
         '''
         predict_labels = []
         for i in range(len(validation_datas)):
-            print(i)
+            print("step: " + str(i))
             ndistance = []
             for j in range(len(train_datas)):
                 distance = self.calculate_cos(validation_datas[i], train_datas[j])
