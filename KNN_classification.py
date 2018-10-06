@@ -47,7 +47,7 @@ class KNN():
             print("step: " + str(i))
             ndistance = []
             for j in range(len(train_datas)):
-                distance = self.calculate_cos(validation_datas[i], train_datas[j])
+                distance = self.calculate_jaccard(validation_datas[i], train_datas[j])
                 ndistance.append([distance, train_labels[j]])
             knearest = [distance[1] for distance in heapq.nsmallest(k, ndistance)]
             predict_labels.append(collections.Counter(knearest).most_common(1)[0][0])
@@ -81,6 +81,6 @@ class KNN():
 
 if __name__ == '__main__':
     knn = KNN()
-    knn.read("data/2")
+    knn.read("data/5")
     knn.predict_labels = knn.k_nearest_neighbors(knn.train_datas, knn.train_labels, knn.test_datas, 155)
-    knn.write("data/2")
+    knn.write("data/5")
