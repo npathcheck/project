@@ -42,7 +42,7 @@ class KNN():
             print("step: " + str(i))
             ndistance = []
             for j in range(len(self.train_datas)):
-                distance = self.calculate_cos(self.test_datas[i],self.train_datas[j],self.test_tags[i],self.train_tags[j])
+                distance = self.calculate_euclidean(self.test_datas[i],self.train_datas[j],self.test_tags[i],self.train_tags[j])
                 ndistance.append([distance, self.train_labels[j]])
             knearest = np.array([distance for distance in heapq.nsmallest(k, ndistance)])
             kweight = 1 / knearest[:,0]
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     knn = KNN()
     knn.read("data/回归")
     knn.k_nearest_neighbors(100)
-    knn.write("data/回归/16337250_3.txt")
+    knn.write("data/回归/16337250_1.txt")

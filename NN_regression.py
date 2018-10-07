@@ -5,6 +5,7 @@ import datetime
 class NN():
 
     learning_rate = 0.0001
+    neuron_unit = 10
 
     train_datas = []
     train_tags = []
@@ -26,28 +27,83 @@ class NN():
         for i in range(6):
             data[:,i] = (data[:,i] - np.min(data[:,i])) / (np.max(data[:,i] - np.min(data[:,i]))) * 10
 
-    def initial(self):
-        self.weights = [np.random.randn(6, 6) / np.sqrt(6), np.random.randn(6, 1) / np.sqrt(6)]
-        self.biases = [np.zeros(6), 0]
+    def initial1(self):
+        self.weights = [np.random.randn(6, self.neuron_unit) / np.sqrt(6),
+                        np.random.randn(self.neuron_unit, 1) / np.sqrt(self.neuron_unit)]
+        self.biases = [np.zeros(self.neuron_unit), 0]
+
+    def initial2(self):
+        self.weights = [np.random.randn(6, self.neuron_unit) / np.sqrt(6),
+                        np.random.randn(self.neuron_unit, self.neuron_unit) / np.sqrt(self.neuron_unit),
+                        np.random.randn(self.neuron_unit, 1) / np.sqrt(self.neuron_unit)]
+        self.biases = [np.zeros(self.neuron_unit), np.zeros(self.neuron_unit), 0]
 
     def sigmoid(self, x):
         return 1 / (1+np.exp(-x))
 
-    def sigmoid_derivative(self, x):
-        return x * (1-x)
-
-    def neuron_network(self):
+    def sigmoid_neuron_network1(self):
         loss = []
         for i in range(len(self.train_datas)):
             hidden_y = self.sigmoid(np.dot(self.weights[0].T, self.train_datas[i]) + self.biases[0])
             output_y = np.dot(self.weights[1].T, hidden_y) + self.biases[1]
             error = output_y[0] - self.train_labels[i]
             loss.append(error ** 2 / 2)
-            self.weights[1] = self.weights[1] - (self.learning_rate * error * hidden_y).reshape(6,1)
+            self.weights[1] = self.weights[1] - (self.learning_rate * error * hidden_y).reshape(self.neuron_unit,1)
             self.biases[1] = self.biases[1] - (self.learning_rate * error)
             self.weights[0] = self.weights[0] - (self.learning_rate * error * hidden_y * (1-hidden_y) * np.dot(self.weights[1], self.train_datas[i].reshape(1, 6)).T)
-            self.biases[0] = self.biases[0] - (self.learning_rate * error * hidden_y * (1 - hidden_y) * self.weights[1].reshape(6))
+            self.biases[0] = self.biases[0] - (self.learning_rate * error * hidden_y * (1 - hidden_y) * self.weights[1].reshape(self.neuron_unit))
         return np.mean(np.array(loss))
+
+    def tanh_neuron_network1(self):
+        loss = []
+        for i in range(len(self.train_datas)):
+            hidden_y = np.tanh(np.dot(self.weights[0].T, self.train_datas[i]) + self.biases[0])
+            output_y = np.dot(self.weights[1].T, hidden_y) + self.biases[1]
+            error = output_y[0] - self.train_labels[i]
+            loss.append(error ** 2 / 2)
+            self.weights[1] = self.weights[1] - (self.learning_rate * error * hidden_y).reshape(self.neuron_unit,1)
+            self.biases[1] = self.biases[1] - (self.learning_rate * error)
+            if i == 0 :
+                print(self.weights[1])
+                print(self.train_datas[i])
+            self.weights[0] = self.weights[0] - (self.learning_rate * error * (1 - hidden_y * hidden_y) * np.dot(self.weights[1], self.train_datas[i].reshape(1, 6)).T)
+            self.biases[0] = self.biases[0] - (self.learning_rate * error * (1 - hidden_y * hidden_y ) * self.weights[1].reshape(self.neuron_unit))
+        return np.mean(np.array(loss))
+
+    def tanh_neuron_network2(self):
+        loss = []
+        for i in range(len(self.train_datas)):
+            hidden1_y = np.tanh(np.dot(self.weights[0].T, self.train_datas[i]) + self.biases[0])
+            hidden2_y = np.tanh(np.dot(self.weights[1].T, hidden1_y) + self.biases[1])
+            output_y = np.dot(self.weights[2].T, hidden2_y) + self.biases[2]
+            error = output_y[0] - self.train_labels[i]
+            loss.append(error ** 2 / 2)
+
+            delta = self.learning_rate * error
+            self.weights[2] = self.weights[2] - (delta * hidden2_y).reshape(self.neuron_unit, 1)
+            self.biases[2] = self.biases[2] - delta
+
+            delta *= (1 - hidden2_y * hidden2_y)
+            self.weights[1] = self.weights[1] - (delta * np.dot(self.weights[2], hidden1_y.reshape(1, self.neuron_unit)).T)
+            self.biases[1] = self.biases[1] - (delta * self.weights[2].reshape(self.neuron_unit))
+
+            delta *= (1 - hidden1_y * hidden2_y)
+        return np.mean(np.array(loss))
+
+    def linear_neuron_network1(self):
+        loss = []
+        for i in range(len(self.train_datas)):
+            hidden_y = np.dot(self.weights[0].T, self.train_datas[i]) + self.biases[0]
+            output_y = np.dot(self.weights[1].T, hidden_y) + self.biases[1]
+            error = output_y[0] - self.train_labels[i]
+            loss.append(error ** 2 / 2)
+            self.weights[1] = self.weights[1] - (self.learning_rate * error * hidden_y).reshape(self.neuron_unit,1)
+            self.biases[1] = self.biases[1] - (self.learning_rate * error)
+            self.weights[0] = self.weights[0] - (self.learning_rate * error * np.dot(self.weights[1], self.train_datas[i].reshape(1, 6)).T)
+            self.biases[0] = self.biases[0] - (self.learning_rate * error * self.weights[1].reshape(self.neuron_unit))
+        return np.mean(np.array(loss))
+
+
 
     def calculate_result(self):
         for i in range(len(self.test_datas)):
@@ -59,9 +115,8 @@ if __name__ == "__main__":
     np.random.seed()
     nn = NN()
     nn.read("data/回归")
-    nn.initial()
-    nn.neuron_network()
+    nn.initial1()
     for i in range(200):
-        print(str(i) + " epoch: " + str(nn.neuron_network()))
+        print(str(i) + " epoch: " + str(nn.tanh_neuron_network1()))
     nn.calculate_result()
-    nn.write("data/回归/16337250_3.txt")
+    nn.write("data/回归/16337250_11.txt")
