@@ -46,7 +46,7 @@ def read(file_path, type):
         return np.array(datas).astype(np.float64), tags
 
 def write(file_path, predict_labels):
-    write_object = open(file_path + "/16337250_4.txt", 'w', encoding='UTF-8')
+    write_object = open(file_path, 'w', encoding='UTF-8')
     for predict_label in predict_labels:
         write_object.write(str(predict_label) + '\n')
     write_object.close()

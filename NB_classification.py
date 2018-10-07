@@ -78,7 +78,7 @@ if __name__ == '__main__':
     nb.read("data/5/")
     nb.create_wordMatrix(nb.train_datas, nb.train_labels)
     nb.predict_labels = nb.navie_bayes(nb.train_labels, nb.test_datas)
-    nb.write("data/5/")
+    nb.write("data/5/16337250_0.txt")
 
 
 

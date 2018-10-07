@@ -19,9 +19,9 @@ def clear(file_path):
 
     step = 0
     read_object = open(file_path+"/trainData.txt", 'r', encoding='UTF-8')
-    for line in read_object.readlines()[:10]:
+    for line in read_object.readlines():
         line = re.sub(r'<.*?>', '',line.strip())
-        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>"` ]', line))))
+        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line))))
         for i in range(len(line_words)):
             if not ecd.check(line_words[i]):
                 line_words[i] = (ecd.suggest(line_words[i])+[line_words[i]])[0].lower()
@@ -38,7 +38,7 @@ def clear(file_path):
     read_object = open(file_path + "/testData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '', line.strip())
-        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>"` ]', line))))
+        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line))))
         for i in range(len(line_words)):
             if not ecd.check(line_words[i]):
                 line_words[i] = (ecd.suggest(line_words[i])+[line_words[i]])[0].lower()
@@ -71,7 +71,7 @@ def read(file_path):
     return train_datas, train_labels, test_datas
 
 def write(file_path, predict_labels):
-    write_object = open(file_path + "/16337250_4.txt", 'w', encoding='UTF-8')
+    write_object = open(file_path, 'w', encoding='UTF-8')
     for predict_label in predict_labels:
         write_object.write(str(predict_label) + '\n')
     write_object.close()
@@ -96,4 +96,4 @@ def k_fold_cross_validation(train_datas, train_labels, k=10):
 
 
 if __name__ == "__main__":
-    clear("data/5")
+    clear("data/2")
