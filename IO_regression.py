@@ -39,7 +39,7 @@ def read(file_path, type):
         labels = []
         read_object = open(file_path + "/" + type + "Label.txt", 'r', encoding='UTF-8')
         for line in read_object.readlines():
-            labels.append(line.strip().split(' '))
+            labels.append(float(line))
         read_object.close()
         return np.array(datas).astype(np.float64), tags, np.array(labels).astype(np.float64)
     else:
@@ -52,5 +52,5 @@ def write(file_path, predict_labels):
     write_object.close()
 
 if __name__ == "__main__":
-    #clear("data/回归", "train")
+    clear("data/回归", "train")
     clear("data/回归", "test")

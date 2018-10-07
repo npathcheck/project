@@ -25,6 +25,10 @@ class KNN():
         for i in range(6):
             data[:,i] = (data[:,i] - np.min(data[:,i])) / (np.max(data[:,i] - np.min(data[:,i]))) * 10
 
+    def z_score_standard(self, data):
+        for i in range(6):
+            data[:,i] = (data[:,i] - np.mean(data[:,i])) / np.std(data[:,i]) * 10
+
     def calculate_euclidean(self, data1, data2, tag1, tag2):
         return (np.linalg.norm((data1-data2))**2 + len(tag1^tag2))**0.5
 
@@ -38,7 +42,7 @@ class KNN():
             print("step: " + str(i))
             ndistance = []
             for j in range(len(self.train_datas)):
-                distance = self.calculate_euclidean(self.test_datas[i],self.train_datas[j],self.test_tags[i],self.train_tags[j])
+                distance = self.calculate_cos(self.test_datas[i],self.train_datas[j],self.test_tags[i],self.train_tags[j])
                 ndistance.append([distance, self.train_labels[j]])
             knearest = np.array([distance for distance in heapq.nsmallest(k, ndistance)])
             kweight = 1 / knearest[:,0]
@@ -48,5 +52,5 @@ class KNN():
 if __name__ == '__main__':
     knn = KNN()
     knn.read("data/回归")
-    knn.k_nearest_neighbors(50)
-    knn.write("data/回归/16337250_1.txt")
+    knn.k_nearest_neighbors(100)
+    knn.write("data/回归/16337250_3.txt")
