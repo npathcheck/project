@@ -191,6 +191,6 @@ if __name__ == "__main__":
     nn.read("data/回归")
     nn.initial2()
     for i in range(500):
-        print(str(i) + " epoch loss: " + str(nn.tanh_neuron_network2()))
+        print(str(i) + " epoch loss: " + str(nn.relu_neuron_network2()))
     nn.calculate_result()
-    nn.write("data/回归/16337250_9.txt")
+    nn.write("data/回归/16337250_0.txt")
