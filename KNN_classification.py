@@ -27,7 +27,7 @@ class KNN():
 
     # 余弦距离取负
     def calculate_cos(self, text1, text2):
-        return - len(text1 & text2) / (len(text1) + len(text2))
+        return - len(text1 & text2) / (len(text1) * len(text2))
 
     # 杰卡德距离取负
     def calculate_jaccard(self, text1, text2):
@@ -47,7 +47,7 @@ class KNN():
             print("step: " + str(i))
             ndistance = []
             for j in range(len(train_datas)):
-                distance = self.calculate_lp(validation_datas[i], train_datas[j])
+                distance = self.calculate_cos(validation_datas[i], train_datas[j])
                 ndistance.append([distance, train_labels[j]])
             knearest = [distance[1] for distance in heapq.nsmallest(k, ndistance)]
             predict_labels.append(collections.Counter(knearest).most_common(1)[0][0])
@@ -81,6 +81,6 @@ class KNN():
 
 if __name__ == '__main__':
     knn = KNN()
-    knn.read("data/5")
-    knn.predict_labels = knn.k_nearest_neighbors(knn.train_datas, knn.train_labels, knn.test_datas, 150)
-    knn.write("data/5/16337250_3.txt")
+    knn.read("data/2")
+    knn.predict_labels = knn.k_nearest_neighbors(knn.train_datas, knn.train_labels, knn.test_datas, 100)
+    knn.write("data/2/16337250_4.txt")

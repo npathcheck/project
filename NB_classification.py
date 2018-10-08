@@ -14,7 +14,7 @@ class NB():
 
     # 读取训练集
     def read(self, file_path):
-        self.train_datas, self.train_labels, self.test_datas = IO_classification.read(file_path)
+        self.train_datas, self.train_labels, self.test_datas = IO_classification.read(file_path, "unclear")
 
     def write(self, file_path):
         IO_classification.write(file_path, self.predict_labels)
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     nb.read("data/5/")
     nb.create_wordMatrix(nb.train_datas, nb.train_labels)
     nb.predict_labels = nb.navie_bayes(nb.train_labels, nb.test_datas)
-    nb.write("data/5/16337250_0.txt")
+    nb.write("data/2/16337250_0.txt")
 
 
 

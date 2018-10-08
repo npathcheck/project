@@ -1,5 +1,8 @@
 import re
 import enchant
+import math
+import numpy as np
+from collections import Counter
 from nltk.stem import SnowballStemmer
 
 def clear(file_path):
@@ -52,21 +55,47 @@ def clear(file_path):
     write_object.close()
 
 
-def read(file_path):
+def resplit(file_path):
+    train_datas = []
+    test_datas = []
+
+    read_object = open(file_path + "/trainData.txt", 'r', encoding='UTF-8')
+    for line in read_object.readlines():
+        line = re.sub(r'<.*?>', '', line.strip())
+        train_datas.append(list(filter(None, (word.lower() for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line)))))
+    read_object.close()
+    write_object = open(file_path + "/unclearTrainData.txt", 'w', encoding='UTF-8')
+    for train_data in train_datas:
+        write_object.write(' '.join('%s' % s for s in train_data) + '\n')
+    write_object.close()
+
+    read_object = open(file_path + "/testData.txt", 'r', encoding='UTF-8')
+    for line in read_object.readlines():
+        line = re.sub(r'<.*?>', '', line.strip())
+        test_datas.append(list(filter(None, (word.lower() for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line)))))
+    read_object.close()
+    write_object = open(file_path + "/unclearTestData.txt", 'w', encoding='UTF-8')
+    for test_data in test_datas:
+        write_object.write(' '.join('%s' % s for s in test_data) + '\n')
+    write_object.close()
+
+
+
+def read(file_path, type = "clear"):
     train_datas = []
     train_labels = []
     test_datas =[]
-    read_object = open(file_path + "/clearTrainData.txt", 'r', encoding='UTF-8')
+    read_object = open(file_path + "/" + type + "TrainData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
-        train_datas.append(line.split(' '))
+        train_datas.append(line.strip().split(' '))
     read_object.close()
     read_object = open(file_path + "/trainLabel.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         train_labels.append(int(line))
     read_object.close()
-    read_object = open(file_path + "/clearTestData.txt", 'r', encoding='UTF-8')
+    read_object = open(file_path + "/" + type + "TestData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
-        test_datas.append(line.split(' '))
+        test_datas.append(line.strip().split(' '))
     read_object.close()
     return train_datas, train_labels, test_datas
 
@@ -75,6 +104,39 @@ def write(file_path, predict_labels):
     for predict_label in predict_labels:
         write_object.write(str(predict_label) + '\n')
     write_object.close()
+
+def tf_idf(file_path):
+    train_datas, train_labels, test_datas = read(file_path, "clear")
+    key_train_datas = []
+    key_test_datas = []
+    datas = []
+    for train_data in train_datas:
+        datas += list(set(train_data))
+    for test_data in test_datas:
+        datas += list(set(test_data))
+    datas_dict = Counter(datas)
+    datas_len = len(train_datas) + len(test_datas)
+    for train_data in train_datas:
+        data_tfidf = []
+        data_dict = Counter(train_data)
+        for word in train_data:
+            data_tfidf.append([-data_dict[word] * math.log(datas_len/datas_dict[word]), word])
+        key_train_datas.append([word[1] for word in sorted(data_tfidf)[:50]])
+    for test_data in test_datas:
+        data_tfidf = []
+        data_dict = Counter(test_data)
+        for word in test_data:
+            data_tfidf.append([-data_dict[word] * math.log(datas_len/datas_dict[word]), word])
+        key_test_datas.append([word[1] for word in sorted(data_tfidf)[:50]])
+    write_object = open(file_path + "/keyTrainData.txt", 'w', encoding='UTF-8')
+    for key_train_data in key_train_datas:
+        write_object.write(' '.join('%s' % s for s in key_train_data) + '\n')
+    write_object.close()
+    write_object = open(file_path + "/keyTestData.txt", 'w', encoding='UTF-8')
+    for key_test_data in key_test_datas:
+        write_object.write(' '.join('%s' % s for s in key_test_data) + '\n')
+    write_object.close()
+
 
 def k_fold_cross_validation(train_datas, train_labels, k=10):
     '''
@@ -96,4 +158,4 @@ def k_fold_cross_validation(train_datas, train_labels, k=10):
 
 
 if __name__ == "__main__":
-    clear("data/2")
+    resplit("data/5")
