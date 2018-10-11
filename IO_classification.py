@@ -1,8 +1,8 @@
 import re
-import enchant
 import math
 import numpy as np
 from collections import Counter
+import enchant
 from nltk.stem import SnowballStemmer
 
 def clear(file_path):
@@ -24,7 +24,7 @@ def clear(file_path):
     read_object = open(file_path+"/trainData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '',line.strip())
-        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line))))
+        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-\'?/*&,;.:!()<>"`$#%@ ]', line))))
         for i in range(len(line_words)):
             if not ecd.check(line_words[i]):
                 line_words[i] = (ecd.suggest(line_words[i])+[line_words[i]])[0].lower()
@@ -41,7 +41,7 @@ def clear(file_path):
     read_object = open(file_path + "/testData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '', line.strip())
-        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line))))
+        line_words = list(filter(None, (stemmer.stem(word.lower()) for word in re.split(r'[-\'?/*&,;.:!()<>"`$#%@ ]', line))))
         for i in range(len(line_words)):
             if not ecd.check(line_words[i]):
                 line_words[i] = (ecd.suggest(line_words[i])+[line_words[i]])[0].lower()
@@ -62,7 +62,7 @@ def resplit(file_path):
     read_object = open(file_path + "/trainData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '', line.strip())
-        train_datas.append(list(filter(None, (word.lower() for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line)))))
+        train_datas.append(list(filter(None, (word.lower() for word in re.split(r'[-\'?/*&,;.:!()<>"`$#%@ ]', line)))))
     read_object.close()
     write_object = open(file_path + "/unclearTrainData.txt", 'w', encoding='UTF-8')
     for train_data in train_datas:
@@ -72,13 +72,50 @@ def resplit(file_path):
     read_object = open(file_path + "/testData.txt", 'r', encoding='UTF-8')
     for line in read_object.readlines():
         line = re.sub(r'<.*?>', '', line.strip())
-        test_datas.append(list(filter(None, (word.lower() for word in re.split(r'[-?/*&,;.:!()<>"`$#%@ ]', line)))))
+        test_datas.append(list(filter(None, (word.lower() for word in re.split(r'[-\'?/*&,;.:!()<>"`$#%@ ]', line)))))
     read_object.close()
     write_object = open(file_path + "/unclearTestData.txt", 'w', encoding='UTF-8')
     for test_data in test_datas:
         write_object.write(' '.join('%s' % s for s in test_data) + '\n')
     write_object.close()
 
+def padding(file_path):
+    train_datas = []
+    test_datas = []
+    stop_words = []
+    read_object = open("data/stoplist.csv", 'r', encoding='UTF-8')
+    for line in read_object.readlines():
+        stop_words.append(line.strip())
+    read_object.close()
+    read_object = open(file_path + "/unclearTrainData.txt", 'r', encoding='UTF-8')
+    for line in read_object.readlines():
+        train_datas.append([word for word in line.strip().split() if word not in stop_words])
+    read_object.close()
+    read_object = open(file_path + "/unclearTestData.txt", 'r', encoding='UTF-8')
+    for line in read_object.readlines():
+        test_datas.append([word for word in line.strip().split() if word not in stop_words])
+    read_object.close()
+
+    # length = 150
+    # for i in range(len(train_datas)):
+    #     if len(train_datas[i]) < length:
+    #         train_datas[i] = train_datas[i] + ["movie"] * (length - len(train_datas[i]))
+    #     else:
+    #         train_datas[i] = train_datas[i][:length]
+    # for i in range(len(test_datas)):
+    #     if len(test_datas[i]) < length:
+    #         test_datas[i] = test_datas[i] + ["movie"] * (length - len(test_datas[i]))
+    #     else:
+    #         test_datas[i] = test_datas[i][:length]
+
+    write_object = open(file_path + "/unclearStopTrainData.txt", 'w', encoding='UTF-8')
+    for train_data in train_datas:
+        write_object.write(' '.join('%s' % s for s in train_data) + '\n')
+    write_object.close()
+    write_object = open(file_path + "/unclearStopTestData.txt", 'w', encoding='UTF-8')
+    for test_data in test_datas:
+        write_object.write(' '.join('%s' % s for s in test_data) + '\n')
+    write_object.close()
 
 
 def read(file_path, type = "clear"):
@@ -158,4 +195,4 @@ def k_fold_cross_validation(train_datas, train_labels, k=10):
 
 
 if __name__ == "__main__":
-    resplit("data/5")
+    clear("data/5")

@@ -32,8 +32,15 @@ class KNN():
     def calculate_euclidean(self, data1, data2, tag1, tag2):
         return (np.linalg.norm((data1-data2))**2 + len(tag1^tag2))**0.5
 
+    def calculate_tag_euclidean(self, tag1, tag2):
+        return len(tag1^tag2)
+
     def calculate_cos(self, data1, data2, tag1, tag2):
         cos = (np.dot(data1, data2)+len(tag1&tag2)) / ((np.linalg.norm(data1)+len(tag1)) * (np.linalg.norm(data2)+len(tag1)))
+        return -math.log(cos)
+
+    def calculate_tag_cos(self, tag1, tag2):
+        cos = len(tag1 & tag2) / (len(tag1) * len(tag2))
         return -math.log(cos)
 
     def k_nearest_neighbors(self, k):
@@ -42,7 +49,8 @@ class KNN():
             print("step: " + str(i))
             ndistance = []
             for j in range(len(self.train_datas)):
-                distance = self.calculate_euclidean(self.test_datas[i],self.train_datas[j],self.test_tags[i],self.train_tags[j])
+                #distance = self.calculate_euclidean(self.test_datas[i],self.train_datas[j],self.test_tags[i],self.train_tags[j])
+                distance = self.calculate_tag_euclidean(self.train_tags[i], self.test_tags[i])
                 ndistance.append([distance, self.train_labels[j]])
             knearest = np.array([distance for distance in heapq.nsmallest(k, ndistance)])
             kweight = 1 / knearest[:,0]
@@ -53,4 +61,6 @@ if __name__ == '__main__':
     knn = KNN()
     knn.read("data/回归")
     knn.k_nearest_neighbors(100)
-    knn.write("data/回归/16337250_1.txt")
+    knn.write("data/回归/euclideanTag100K.txt")
+
+
