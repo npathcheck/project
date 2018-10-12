@@ -29,7 +29,7 @@ for test_tag in test_tags:
     test_tag_array = np.zeros(14)
     for tag in test_tag:
         test_tag_array += model[tag]
-        test_tag_array /= len(test_tag)
+    test_tag_array /= len(test_tag)
     test_tags_array.append(test_tag_array)
 test_tags_array = np.array(test_tags_array)
 

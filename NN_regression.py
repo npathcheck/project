@@ -150,18 +150,6 @@ class NN():
         x *= 1/(work_prod)      # 放大剩下神经元的输出
         return x
 
-    # def calculate_average_loss(self):
-    #     loss = []
-    #     for i in range(len(self.train_datas)):
-    #         hidden1_y = np.dot(self.weights[0].T, self.train_datas[i]) + self.biases[0]
-    #         hidden1_y[hidden1_y < 0] = 0
-    #         hidden2_y = np.dot(self.weights[1].T, hidden1_y) + self.biases[1]
-    #         hidden2_y[hidden2_y < 0] = 0
-    #         output_y = np.dot(self.weights[2].T, hidden2_y) + self.biases[2]
-    #         error = output_y[0] - self.train_labels[i]
-    #         loss.append(error ** 2 / 2)
-    #     return np.mean(np.array(loss))
-
     def calculate_result(self):
         for i in range(len(self.test_datas)):
             hidden1_y = np.tanh(np.dot(self.weights[0].T, self.test_datas[i]) + self.biases[0])
